@@ -209,6 +209,25 @@ body { background: var(--color-bg); overflow: hidden; }
   color: var(--color-muted);
 }
 
+.filter-reset-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.filter-reset-btn:hover {
+  background: #fff0f0;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
 .filter-label {
   display: block;
   font-size: 0.78rem;

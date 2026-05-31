@@ -53,12 +53,15 @@ interface AppContextValue {
 
   mapaFilters: MapaFilters;
   updateMapaFilters: (patch: Partial<MapaFilters>) => void;
+  resetMapaFilters: () => void;
 
   exploracioConfig: ExploracioConfig;
   updateExploracioConfig: (patch: Partial<ExploracioConfig>) => void;
+  resetExploracioConfig: () => void;
 
   analisiConfig: AnalisiConfig;
   updateAnalisiConfig: (patch: Partial<AnalisiConfig>) => void;
+  resetAnalisiConfig: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -71,32 +74,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<ViewId>('mapa');
 
-  const [mapaFilters, setMapaFilters] = useState<MapaFilters>({
-    zones: [],
-    foods: [],
-    ambients: [],
-    openLunch: false,
-    openDinner: false,
-    openWeekend: false,
-  });
+  const DEFAULT_MAPA: MapaFilters = {
+    zones: [], foods: [], ambients: [],
+    openLunch: false, openDinner: false, openWeekend: false,
+  };
 
-  const [exploracioConfig, setExploracioConfig] = useState<ExploracioConfig>({
-    xAxis: 'zone',
-    yAxis: 'score',
-    zones: [],
-    foods: [],
-    ambients: [],
-    priceRange: [0, 200],
-    minSamples: 1,
-  });
+  const [mapaFilters, setMapaFilters] = useState<MapaFilters>(DEFAULT_MAPA);
 
-  const [analisiConfig, setAnalisiConfig] = useState<AnalisiConfig>({
-    xAxis: 'price',
-    yAxis: 'score',
-    zones: [],
-    foods: [],
-  });
+  const DEFAULT_EXPLORACIO: ExploracioConfig = {
+    xAxis: 'zone', yAxis: 'score',
+    zones: [], foods: [], ambients: [],
+    priceRange: [0, 200], minSamples: 1,
+  };
 
+  const [exploracioConfig, setExploracioConfig] = useState<ExploracioConfig>(DEFAULT_EXPLORACIO);
+
+  const DEFAULT_ANALISI: AnalisiConfig = { xAxis: 'price', yAxis: 'score', zones: [], foods: [] };
+
+  const [analisiConfig, setAnalisiConfig] = useState<AnalisiConfig>(DEFAULT_ANALISI);
+
+  // Sync priceRange max once data loads
   useEffect(() => {
     loadRestaurantData()
       .then((data) => {
@@ -149,6 +146,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateAnalisiConfig = (patch: Partial<AnalisiConfig>) =>
     setAnalisiConfig((prev) => ({ ...prev, ...patch }));
 
+  const resetMapaFilters = () => setMapaFilters(DEFAULT_MAPA);
+  const resetExploracioConfig = () =>
+    setExploracioConfig({ ...DEFAULT_EXPLORACIO, priceRange: [0, maxPrice] });
+  const resetAnalisiConfig = () => setAnalisiConfig(DEFAULT_ANALISI);
+
   return (
     <AppContext.Provider
       value={{
@@ -161,10 +163,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setActiveView,
         mapaFilters,
         updateMapaFilters,
+        resetMapaFilters,
         exploracioConfig,
         updateExploracioConfig,
+        resetExploracioConfig,
         analisiConfig,
         updateAnalisiConfig,
+        resetAnalisiConfig,
       }}
     >
       {children}

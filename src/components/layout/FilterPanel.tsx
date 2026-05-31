@@ -35,10 +35,13 @@ export default function FilterPanel() {
     activeView,
     mapaFilters,
     updateMapaFilters,
+    resetMapaFilters,
     exploracioConfig,
     updateExploracioConfig,
+    resetExploracioConfig,
     analisiConfig,
     updateAnalisiConfig,
+    resetAnalisiConfig,
     maxPrice,
   } = useApp();
 
@@ -53,6 +56,9 @@ export default function FilterPanel() {
       {/* ── MAPA ── */}
       {activeView === 'mapa' && (
         <>
+          <button className="filter-reset-btn" onClick={resetMapaFilters}>
+            ↺ Netejar filtres
+          </button>
           <MultiSelect
             label="Zona"
             options={zones}
@@ -106,6 +112,9 @@ export default function FilterPanel() {
       {/* ── EXPLORACIÓ ── */}
       {activeView === 'exploracio' && (
         <>
+          <button className="filter-reset-btn" onClick={resetExploracioConfig}>
+            ↺ Netejar filtres
+          </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
             <select
@@ -184,6 +193,9 @@ export default function FilterPanel() {
       {/* ── ANÀLISI ── */}
       {activeView === 'analisi' && (
         <>
+          <button className="filter-reset-btn" onClick={resetAnalisiConfig}>
+            ↺ Netejar filtres
+          </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
             <select
