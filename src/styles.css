@@ -129,6 +129,15 @@ body { background: var(--color-bg); overflow: hidden; }
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  /* Leaflet needs a defined height on the container */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Leaflet map fix: ensure the map fills its container */
+.leaflet-container {
+  flex: 1;
+  border-radius: var(--radius);
 }
 
 /* Map */
@@ -138,20 +147,18 @@ body { background: var(--color-bg); overflow: hidden; }
   height: 100%;
 }
 
+/* Llegenda del mapa — renderitzada com a Leaflet Control (z-index garantit) */
 .map-legend {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  z-index: 10;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  pointer-events: none;
+  gap: 3px;
+  box-shadow: var(--shadow);
+  line-height: 1.4;
 }
 
 .map-popup {

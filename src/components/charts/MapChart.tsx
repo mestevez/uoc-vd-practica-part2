@@ -1,133 +1,92 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useEffect } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import * as d3 from 'd3';
+import 'leaflet/dist/leaflet.css';
 import { Restaurant } from '../../lib/restaurantData';
 
 interface Props {
   data: Restaurant[];
 }
 
-interface Popup {
-  restaurant: Restaurant;
-  x: number;
-  y: number;
-}
+const CENTRE: [number, number] = [41.3874, 2.1686];
+const ZOOM = 13;
 
-const PRICE_COLOR = d3.scaleSequential(d3.interpolateYlOrRd);
-const MARGIN = { top: 16, right: 16, bottom: 16, left: 16 };
-
-export default function MapChart({ data }: Props) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const gRef = useRef<SVGGElement>(null);
-  const [popup, setPopup] = useState<Popup | null>(null);
+// ── Llegenda com a control natiu de Leaflet ───────────────────────────────────
+function MapLegend() {
+  const map = useMap();
 
   useEffect(() => {
-    if (!svgRef.current || !gRef.current || !wrapRef.current || data.length === 0) return;
+    const legend = new L.Control({ position: 'bottomleft' });
 
-    const wrap = wrapRef.current;
-    const width = wrap.clientWidth;
-    const height = wrap.clientHeight;
-
-    const svg = d3.select(svgRef.current).attr('width', width).attr('height', height);
-    const g = d3.select(gRef.current);
-
-    // Clear previous render
-    g.selectAll('*').remove();
-
-    // Scales based on coordinates
-    const lngs = data.map((r) => r.longitude);
-    const lats = data.map((r) => r.latitude);
-    const prices = data.filter((r) => r.price > 0).map((r) => r.price);
-
-    const xScale = d3
-      .scaleLinear()
-      .domain([d3.min(lngs)! - 0.005, d3.max(lngs)! + 0.005])
-      .range([MARGIN.left, width - MARGIN.right]);
-
-    const yScale = d3
-      .scaleLinear()
-      .domain([d3.min(lats)! - 0.005, d3.max(lats)! + 0.005])
-      .range([height - MARGIN.bottom, MARGIN.top]);
-
-    const colorScale = PRICE_COLOR.copy().domain([d3.min(prices)!, d3.max(prices)!]);
-
-    const rScale = d3.scaleLinear().domain([0, 10]).range([3, 10]).clamp(true);
-
-    // Background
-    g.append('rect')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('fill', '#e8f4f8')
-      .attr('rx', 4);
-
-    // Dots
-    g.selectAll<SVGCircleElement, Restaurant>('circle')
-      .data(data, (d) => d.id)
-      .join('circle')
-      .attr('cx', (d) => xScale(d.longitude))
-      .attr('cy', (d) => yScale(d.latitude))
-      .attr('r', (d) => rScale(d.score))
-      .attr('fill', (d) => (d.price > 0 ? colorScale(d.price) : '#aaa'))
-      .attr('stroke', 'rgba(255,255,255,0.6)')
-      .attr('stroke-width', 0.5)
-      .attr('opacity', 0.85)
-      .style('cursor', 'pointer')
-      .on('click', (event: MouseEvent, d) => {
-        event.stopPropagation();
-        const rect = (svgRef.current as SVGSVGElement).getBoundingClientRect();
-        setPopup({ restaurant: d, x: event.clientX - rect.left, y: event.clientY - rect.top });
-      });
-
-    // Zoom behaviour
-    const zoom = d3
-      .zoom<SVGSVGElement, unknown>()
-      .scaleExtent([0.5, 30])
-      .on('zoom', (event) => {
-        g.attr('transform', event.transform.toString());
-      });
-
-    d3.select(svgRef.current)
-      .call(zoom)
-      .on('click.clear', () => setPopup(null));
-
-    return () => {
-      d3.select(svgRef.current).on('.zoom', null).on('click.clear', null);
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = `
+        <strong>Color = preu</strong>
+        <span>🟡 Baix &rarr; 🔴 Alt</span>
+        <strong style="margin-top:6px">Mida = puntuació</strong>
+        <span>⬤ petita = baixa &nbsp;·&nbsp; gran = alta</span>
+      `;
+      // Evitar que el clic/scroll propagui al mapa
+      L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
+      return div;
     };
+
+    legend.addTo(map);
+    return () => { legend.remove(); };
+  }, [map]);
+
+  return null;
+}
+
+// ── Component principal ───────────────────────────────────────────────────────
+export default function MapChart({ data }: Props) {
+  const { colorScale, rScale } = useMemo(() => {
+    const prices = data.filter((r) => r.price > 0).map((r) => r.price);
+    const colorScale = d3
+      .scaleSequential(d3.interpolateYlOrRd)
+      .domain([d3.min(prices) ?? 0, d3.max(prices) ?? 100]);
+    const rScale = d3.scaleLinear().domain([0, 10]).range([4, 14]).clamp(true);
+    return { colorScale, rScale };
   }, [data]);
 
   return (
-    <div ref={wrapRef} className="map-wrap">
-      {/* Legend */}
-      <div className="map-legend">
-        <span>🔴 Preu alt</span>
-        <span>🟡 Preu baix</span>
-        <span>⬤ grandària = puntuació</span>
-      </div>
+    <MapContainer
+      center={CENTRE}
+      zoom={ZOOM}
+      style={{ width: '100%', height: '100%' }}
+      scrollWheelZoom
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
 
-      <svg ref={svgRef} style={{ width: '100%', height: '100%', display: 'block' }}>
-        <g ref={gRef} />
-      </svg>
+      <MapLegend />
 
-      {popup && (
-        <div
-          className="map-popup"
-          style={{
-            left: Math.min(popup.x + 12, (wrapRef.current?.clientWidth ?? 600) - 220),
-            top: Math.max(popup.y - 80, 8),
+      {data.map((r) => (
+        <CircleMarker
+          key={r.id}
+          center={[r.latitude, r.longitude]}
+          radius={rScale(r.score)}
+          pathOptions={{
+            fillColor: r.price > 0 ? colorScale(r.price) : '#94a3b8',
+            fillOpacity: 0.82,
+            color: 'rgba(255,255,255,0.7)',
+            weight: 0.8,
           }}
         >
-          <button className="map-popup-close" onClick={() => setPopup(null)}>✕</button>
-          <strong>{popup.restaurant.name}</strong>
-          <div className="popup-row">📍 {popup.restaurant.zone}</div>
-          <div className="popup-row">🍽️ {popup.restaurant.food.split(',').slice(0, 2).join(', ')}</div>
-          <div className="popup-row">⭐ {popup.restaurant.score.toFixed(2)} · 💬 {popup.restaurant.opinions_count}</div>
-          {popup.restaurant.price > 0 && (
-            <div className="popup-row">💶 {popup.restaurant.price} €</div>
-          )}
-          <div className="popup-row small">{popup.restaurant.address}</div>
-        </div>
-      )}
-    </div>
+          <Popup maxWidth={260}>
+            <strong>{r.name}</strong>
+            <div>📍 {r.zone}</div>
+            <div>🍽️ {r.food.split(',').slice(0, 2).map((f) => f.trim()).join(', ')}</div>
+            <div>⭐ {r.score.toFixed(2)} &nbsp;·&nbsp; 💬 {r.opinions_count} opinions</div>
+            {r.price > 0 && <div>💶 {r.price} €</div>}
+            <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: 4 }}>{r.address}</div>
+          </Popup>
+        </CircleMarker>
+      ))}
+    </MapContainer>
   );
 }
-
