@@ -83,7 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [activeView, setActiveView] = useState<ViewId>(initialFromUrl.activeView);
+  const [activeView, setActiveViewState] = useState<ViewId>(initialFromUrl.activeView);
 
   const DEFAULT_MAPA: MapaFilters = {
     zones: [],
@@ -200,12 +200,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateAnalisiConfig = (patch: Partial<AnalisiConfig>) => setAnalisiConfig((prev) => ({ ...prev, ...patch }));
   const updateHeatmapConfig = (patch: Partial<HeatmapConfig>) => setHeatmapConfig((prev) => ({ ...prev, ...patch }));
 
+  const resetViewToDefault = (view: ViewId) => {
+    if (view === 'mapa') setMapaFilters(DEFAULT_MAPA);
+    if (view === 'exploracio') setExploracioConfig({ ...DEFAULT_EXPLORACIO, priceRange: [0, maxPrice] });
+    if (view === 'analisi') setAnalisiConfig(DEFAULT_ANALISI);
+    if (view === 'heatmap') setHeatmapConfig(DEFAULT_HEATMAP);
+  };
+
+  // When switching views, clear the filters/variables of the view being abandoned.
+  const setActiveView = (nextView: ViewId) => {
+    if (nextView === activeView) return;
+    resetViewToDefault(activeView);
+    setActiveViewState(nextView);
+  };
+
   const resetMapaFilters = () => setMapaFilters(DEFAULT_MAPA);
   const resetExploracioConfig = () => setExploracioConfig({ ...DEFAULT_EXPLORACIO, priceRange: [0, maxPrice] });
   const resetAnalisiConfig = () => setAnalisiConfig(DEFAULT_ANALISI);
   const resetHeatmapConfig = () => setHeatmapConfig(DEFAULT_HEATMAP);
   const resetAllPanels = () => {
-    setActiveView('mapa');
     setMapaFilters(DEFAULT_MAPA);
     setExploracioConfig({ ...DEFAULT_EXPLORACIO, priceRange: [0, maxPrice] });
     setAnalisiConfig(DEFAULT_ANALISI);
