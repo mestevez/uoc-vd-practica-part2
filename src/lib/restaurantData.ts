@@ -28,14 +28,11 @@ export interface Restaurant {
 }
 
 function parseEuropeanNumber(value: string): number {
-  // Replace comma decimal separator with dot
   return parseFloat(value.replace(',', '.'));
 }
 
 export async function loadRestaurantData(base = import.meta.env.BASE_URL): Promise<Restaurant[]> {
   const text = await d3.text(`${base}data/data_restaurants_clean.csv`);
-
-  // The CSV uses semicolons as delimiters
   const parsed = d3.dsvFormat(';').parse(text);
 
   return parsed
@@ -68,3 +65,43 @@ export async function loadRestaurantData(base = import.meta.env.BASE_URL): Promi
     }));
 }
 
+// ── Utility helpers ───────────────────────────────────────────────────────────
+
+function splitTrim(value: string): string[] {
+  return value
+    .split(',')
+    .map((s) => s.trim().replace(/\.$/, ''))
+    .filter(Boolean);
+}
+
+export function getUniqueZones(data: Restaurant[]): string[] {
+  return [...new Set(data.map((r) => r.zone).filter(Boolean))].sort();
+}
+
+export function getUniqueFoodTypes(data: Restaurant[]): string[] {
+  const set = new Set<string>();
+  data.forEach((r) => splitTrim(r.food).forEach((f) => set.add(f)));
+  return [...set].sort();
+}
+
+export function getUniqueAmbients(data: Restaurant[]): string[] {
+  const set = new Set<string>();
+  data.forEach((r) => splitTrim(r.ambient).forEach((a) => set.add(a)));
+  return [...set].sort();
+}
+
+export function foodTypes(r: Restaurant): string[] {
+  return splitTrim(r.food);
+}
+
+export function ambientTypes(r: Restaurant): string[] {
+  return splitTrim(r.ambient);
+}
+
+export function primaryFood(r: Restaurant): string {
+  return foodTypes(r)[0] ?? 'Altres';
+}
+
+export function primaryAmbient(r: Restaurant): string {
+  return ambientTypes(r)[0] ?? 'Altres';
+}
