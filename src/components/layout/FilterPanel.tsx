@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { RotateCcw } from 'lucide-react';
 import { useApp, ExploracioXAxis, ExploracioYAxis, AnalisiAxis } from '../../context/AppContext';
 import {
   getUniqueZones,
@@ -12,9 +13,11 @@ const X_OPTIONS_EXPLORACIO: { value: ExploracioXAxis; label: string }[] = [
   { value: 'zone', label: 'Zona' },
   { value: 'food', label: 'Tipus de menjar' },
   { value: 'ambient', label: 'Ambient' },
+  { value: 'restaurant', label: 'Restaurant (top 20)' },
 ];
 
 const Y_OPTIONS_EXPLORACIO: { value: ExploracioYAxis; label: string }[] = [
+  { value: 'count', label: 'Nombre de restaurants' },
   { value: 'score', label: 'Puntuació' },
   { value: 'price', label: 'Preu mitjà' },
   { value: 'opinions', label: 'Nombre d\'opinions' },
@@ -34,10 +37,13 @@ export default function FilterPanel() {
     activeView,
     mapaFilters,
     updateMapaFilters,
+    resetMapaFilters,
     exploracioConfig,
     updateExploracioConfig,
+    resetExploracioConfig,
     analisiConfig,
     updateAnalisiConfig,
+    resetAnalisiConfig,
     maxPrice,
   } = useApp();
 
@@ -52,6 +58,9 @@ export default function FilterPanel() {
       {/* ── MAPA ── */}
       {activeView === 'mapa' && (
         <>
+          <button className="filter-reset-btn" onClick={resetMapaFilters}>
+            <RotateCcw size={13} /> Netejar filtres
+          </button>
           <MultiSelect
             label="Zona"
             options={zones}
@@ -64,12 +73,50 @@ export default function FilterPanel() {
             selected={mapaFilters.foods}
             onChange={(v) => updateMapaFilters({ foods: v })}
           />
+          <MultiSelect
+            label="Ambient"
+            options={ambients}
+            selected={mapaFilters.ambients}
+            onChange={(v) => updateMapaFilters({ ambients: v })}
+          />
+          <div className="filter-group">
+            <label className="filter-label">Horaris</label>
+            <div className="filter-checks">
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openLunch}
+                  onChange={(e) => updateMapaFilters({ openLunch: e.target.checked })}
+                />
+                <span>Obert a dinar</span>
+              </label>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openDinner}
+                  onChange={(e) => updateMapaFilters({ openDinner: e.target.checked })}
+                />
+                <span>Obert a sopar</span>
+              </label>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openWeekend}
+                  onChange={(e) => updateMapaFilters({ openWeekend: e.target.checked })}
+                />
+                <span>Obert el cap de setmana</span>
+              </label>
+            </div>
+          </div>
         </>
       )}
 
       {/* ── EXPLORACIÓ ── */}
       {activeView === 'exploracio' && (
         <>
+          <button className="filter-reset-btn" onClick={resetExploracioConfig}>
+            <RotateCcw size={13} /> Netejar filtres
+          </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
             <select
@@ -123,12 +170,34 @@ export default function FilterPanel() {
             value={exploracioConfig.priceRange}
             onChange={(v) => updateExploracioConfig({ priceRange: v })}
           />
+          <div className="filter-group">
+            <label className="filter-label">
+              Mínim de restaurants per categoria
+            </label>
+            <div className="min-samples-control">
+              <input
+                type="range"
+                min={1}
+                max={50}
+                value={exploracioConfig.minSamples}
+                onChange={(e) => updateExploracioConfig({ minSamples: +e.target.value })}
+                className="range-thumb"
+                style={{ position: 'static', width: '100%', appearance: 'auto', pointerEvents: 'auto', height: '20px' }}
+              />
+              <div className="min-samples-value">
+                ≥ <strong>{exploracioConfig.minSamples}</strong> restaurants
+              </div>
+            </div>
+          </div>
         </>
       )}
 
       {/* ── ANÀLISI ── */}
       {activeView === 'analisi' && (
         <>
+          <button className="filter-reset-btn" onClick={resetAnalisiConfig}>
+            <RotateCcw size={13} /> Netejar filtres
+          </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
             <select

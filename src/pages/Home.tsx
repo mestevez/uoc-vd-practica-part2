@@ -5,21 +5,28 @@ import FilterPanel from '../components/layout/FilterPanel';
 import MapChart from '../components/charts/MapChart';
 import BarChart from '../components/charts/BarChart';
 import ScatterPlot from '../components/charts/ScatterPlot';
+import { UtensilsCrossed } from 'lucide-react';
 
 export default function Home() {
-  const {
-    filteredData,
-    loading,
-    error,
-    activeView,
-    exploracioConfig,
-    analisiConfig,
-  } = useApp();
+  const { filteredData, allData, loading, error, activeView, exploracioConfig, analisiConfig } = useApp();
 
   return (
     <div className="app-shell">
+      {/* Header */}
+      <header className="app-header">
+        <div className="app-header-icon">
+          <UtensilsCrossed size={17} strokeWidth={2.2} />
+        </div>
+        <span className="app-header-title">Restaurants de Barcelona</span>
+        <span className="app-header-subtitle">
+          {allData.length > 0 ? `${allData.length.toLocaleString('ca')} establiments · Visualització de dades` : ''}
+        </span>
+      </header>
+
+      {/* Stats */}
       <StatsBar data={filteredData} />
 
+      {/* Body */}
       <div className="app-body">
         <Sidebar />
 
@@ -30,25 +37,18 @@ export default function Home() {
               <p>Carregant dades…</p>
             </div>
           )}
-
-          {error && (
-            <div className="error-box">
-              <p>Error en carregar les dades: {error}</p>
-            </div>
-          )}
-
+          {error && <div className="error-box"><p>Error: {error}</p></div>}
           {!loading && !error && (
             <div className="chart-area">
               {activeView === 'mapa' && <MapChart data={filteredData} />}
-
               {activeView === 'exploracio' && (
                 <BarChart
                   data={filteredData}
                   xAxis={exploracioConfig.xAxis}
                   yAxis={exploracioConfig.yAxis}
+                  minSamples={exploracioConfig.minSamples}
                 />
               )}
-
               {activeView === 'analisi' && (
                 <ScatterPlot
                   data={filteredData}
@@ -65,4 +65,3 @@ export default function Home() {
     </div>
   );
 }
-

@@ -17,10 +17,22 @@ function ambientMatches(r: Restaurant, ambients: string[]): boolean {
 export function applyMapaFilters(
   data: Restaurant[],
   zones: string[],
-  foods: string[]
+  foods: string[],
+  ambients: string[],
+  openLunch: boolean,
+  openDinner: boolean,
+  openWeekend: boolean
 ): Restaurant[] {
   return data.filter(
-    (r) => r.latitude !== 0 && r.longitude !== 0 && zoneMatches(r, zones) && foodMatches(r, foods)
+    (r) =>
+      r.latitude !== 0 &&
+      r.longitude !== 0 &&
+      zoneMatches(r, zones) &&
+      foodMatches(r, foods) &&
+      ambientMatches(r, ambients) &&
+      (!openLunch || r.open_lunch) &&
+      (!openDinner || r.open_dinner) &&
+      (!openWeekend || r.open_weekend)
   );
 }
 
