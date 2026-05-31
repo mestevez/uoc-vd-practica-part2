@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { RotateCcw } from 'lucide-react';
 import { useApp, ExploracioXAxis, ExploracioYAxis, AnalisiAxis } from '../../context/AppContext';
 import {
   getUniqueZones,
@@ -58,7 +59,7 @@ export default function FilterPanel() {
       {activeView === 'mapa' && (
         <>
           <button className="filter-reset-btn" onClick={resetMapaFilters}>
-            ↺ Netejar filtres
+            <RotateCcw size={13} /> Netejar filtres
           </button>
           <MultiSelect
             label="Zona"
@@ -114,7 +115,7 @@ export default function FilterPanel() {
       {activeView === 'exploracio' && (
         <>
           <button className="filter-reset-btn" onClick={resetExploracioConfig}>
-            ↺ Netejar filtres
+            <RotateCcw size={13} /> Netejar filtres
           </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
@@ -195,7 +196,7 @@ export default function FilterPanel() {
       {activeView === 'analisi' && (
         <>
           <button className="filter-reset-btn" onClick={resetAnalisiConfig}>
-            ↺ Netejar filtres
+            <RotateCcw size={13} /> Netejar filtres
           </button>
           <div className="filter-group">
             <label className="filter-label">Eix X</label>
