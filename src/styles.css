@@ -219,6 +219,30 @@ body { background: var(--color-bg); overflow: hidden; }
 
 .filter-group { display: flex; flex-direction: column; }
 
+.filter-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-check input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
 .filter-select {
   width: 100%;
   padding: 6px 8px;

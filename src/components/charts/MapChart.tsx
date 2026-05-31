@@ -13,7 +13,7 @@ const CENTRE: [number, number] = [41.3874, 2.1686];
 const ZOOM = 13;
 
 // ── Llegenda com a control natiu de Leaflet ───────────────────────────────────
-function MapLegend() {
+function MapLegend({ scoreExtent }: { scoreExtent: [number, number] }) {
   const map = useMap();
 
   useEffect(() => {
@@ -25,9 +25,9 @@ function MapLegend() {
         <strong>Color = preu</strong>
         <span>🟡 Baix &rarr; 🔴 Alt</span>
         <strong style="margin-top:6px">Mida = puntuació</strong>
-        <span>⬤ petita = baixa &nbsp;·&nbsp; gran = alta</span>
+        <span>⬤ ${scoreExtent[0].toFixed(1)} &rarr; ⬤ ${scoreExtent[1].toFixed(1)}</span>
+        <span style="font-size:0.68rem;color:#64748b">(escala potència ×3)</span>
       `;
-      // Evitar que el clic/scroll propagui al mapa
       L.DomEvent.disableClickPropagation(div);
       L.DomEvent.disableScrollPropagation(div);
       return div;
@@ -35,20 +35,33 @@ function MapLegend() {
 
     legend.addTo(map);
     return () => { legend.remove(); };
-  }, [map]);
+  }, [map, scoreExtent]);
 
   return null;
 }
 
 // ── Component principal ───────────────────────────────────────────────────────
 export default function MapChart({ data }: Props) {
-  const { colorScale, rScale } = useMemo(() => {
+  const { colorScale, rScale, scoreExtent } = useMemo(() => {
     const prices = data.filter((r) => r.price > 0).map((r) => r.price);
+    const scores = data.filter((r) => r.score > 0).map((r) => r.score);
+
     const colorScale = d3
       .scaleSequential(d3.interpolateYlOrRd)
       .domain([d3.min(prices) ?? 0, d3.max(prices) ?? 100]);
-    const rScale = d3.scaleLinear().domain([0, 10]).range([4, 14]).clamp(true);
-    return { colorScale, rScale };
+
+    const scoreMin = d3.min(scores) ?? 0;
+    const scoreMax = d3.max(scores) ?? 10;
+
+    // scalePow amb exponent > 1 exagera les diferències en el rang alt
+    const rScale = d3
+      .scalePow()
+      .exponent(3)
+      .domain([scoreMin, scoreMax])
+      .range([4, 16])
+      .clamp(true);
+
+    return { colorScale, rScale, scoreExtent: [scoreMin, scoreMax] as [number, number] };
   }, [data]);
 
   return (
@@ -63,7 +76,7 @@ export default function MapChart({ data }: Props) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      <MapLegend />
+      <MapLegend scoreExtent={scoreExtent} />
 
       {data.map((r) => (
         <CircleMarker

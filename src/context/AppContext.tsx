@@ -16,6 +16,10 @@ export type AnalisiAxis = 'price' | 'score' | 'opinions' | 'dist' | 'renda';
 export interface MapaFilters {
   zones: string[];
   foods: string[];
+  ambients: string[];
+  openLunch: boolean;
+  openDinner: boolean;
+  openWeekend: boolean;
 }
 
 export interface ExploracioConfig {
@@ -66,7 +70,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<ViewId>('mapa');
 
-  const [mapaFilters, setMapaFilters] = useState<MapaFilters>({ zones: [], foods: [] });
+  const [mapaFilters, setMapaFilters] = useState<MapaFilters>({
+    zones: [],
+    foods: [],
+    ambients: [],
+    openLunch: false,
+    openDinner: false,
+    openWeekend: false,
+  });
 
   const [exploracioConfig, setExploracioConfig] = useState<ExploracioConfig>({
     xAxis: 'zone',
@@ -105,7 +116,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const filteredData = useMemo(() => {
     if (activeView === 'mapa')
-      return applyMapaFilters(allData, mapaFilters.zones, mapaFilters.foods);
+      return applyMapaFilters(
+        allData,
+        mapaFilters.zones,
+        mapaFilters.foods,
+        mapaFilters.ambients,
+        mapaFilters.openLunch,
+        mapaFilters.openDinner,
+        mapaFilters.openWeekend
+      );
     if (activeView === 'exploracio')
       return applyExploracioFilters(
         allData,

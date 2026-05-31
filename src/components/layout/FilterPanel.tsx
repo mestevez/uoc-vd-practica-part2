@@ -64,6 +64,41 @@ export default function FilterPanel() {
             selected={mapaFilters.foods}
             onChange={(v) => updateMapaFilters({ foods: v })}
           />
+          <MultiSelect
+            label="Ambient"
+            options={ambients}
+            selected={mapaFilters.ambients}
+            onChange={(v) => updateMapaFilters({ ambients: v })}
+          />
+          <div className="filter-group">
+            <label className="filter-label">Horaris</label>
+            <div className="filter-checks">
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openLunch}
+                  onChange={(e) => updateMapaFilters({ openLunch: e.target.checked })}
+                />
+                <span>Obert a dinar</span>
+              </label>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openDinner}
+                  onChange={(e) => updateMapaFilters({ openDinner: e.target.checked })}
+                />
+                <span>Obert a sopar</span>
+              </label>
+              <label className="filter-check">
+                <input
+                  type="checkbox"
+                  checked={mapaFilters.openWeekend}
+                  onChange={(e) => updateMapaFilters({ openWeekend: e.target.checked })}
+                />
+                <span>Obert el cap de setmana</span>
+              </label>
+            </div>
+          </div>
         </>
       )}
 
