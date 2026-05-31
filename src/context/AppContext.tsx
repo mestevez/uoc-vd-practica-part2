@@ -29,6 +29,7 @@ export interface ExploracioConfig {
   foods: string[];
   ambients: string[];
   priceRange: [number, number];
+  minSamples: number;
 }
 
 export interface AnalisiConfig {
@@ -86,6 +87,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     foods: [],
     ambients: [],
     priceRange: [0, 200],
+    minSamples: 1,
   });
 
   const [analisiConfig, setAnalisiConfig] = useState<AnalisiConfig>({

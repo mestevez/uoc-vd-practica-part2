@@ -158,6 +158,25 @@ export default function FilterPanel() {
             value={exploracioConfig.priceRange}
             onChange={(v) => updateExploracioConfig({ priceRange: v })}
           />
+          <div className="filter-group">
+            <label className="filter-label">
+              Mínim de restaurants per categoria
+            </label>
+            <div className="min-samples-control">
+              <input
+                type="range"
+                min={1}
+                max={50}
+                value={exploracioConfig.minSamples}
+                onChange={(e) => updateExploracioConfig({ minSamples: +e.target.value })}
+                className="range-thumb"
+                style={{ position: 'static', width: '100%', appearance: 'auto', pointerEvents: 'auto', height: '20px' }}
+              />
+              <div className="min-samples-value">
+                ≥ <strong>{exploracioConfig.minSamples}</strong> restaurants
+              </div>
+            </div>
+          </div>
         </>
       )}
 

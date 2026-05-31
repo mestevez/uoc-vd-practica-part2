@@ -243,6 +243,18 @@ body { background: var(--color-bg); overflow: hidden; }
   cursor: pointer;
 }
 
+.min-samples-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.min-samples-value {
+  font-size: 0.82rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
 .filter-select {
   width: 100%;
   padding: 6px 8px;

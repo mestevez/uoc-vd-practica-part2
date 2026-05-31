@@ -46,6 +46,7 @@ export default function Home() {
                   data={filteredData}
                   xAxis={exploracioConfig.xAxis}
                   yAxis={exploracioConfig.yAxis}
+                  minSamples={exploracioConfig.minSamples}
                 />
               )}
 
