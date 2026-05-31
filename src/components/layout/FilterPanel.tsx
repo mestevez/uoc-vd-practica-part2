@@ -12,6 +12,7 @@ const X_OPTIONS_EXPLORACIO: { value: ExploracioXAxis; label: string }[] = [
   { value: 'zone', label: 'Zona' },
   { value: 'food', label: 'Tipus de menjar' },
   { value: 'ambient', label: 'Ambient' },
+  { value: 'restaurant', label: 'Restaurant (top 20)' },
 ];
 
 const Y_OPTIONS_EXPLORACIO: { value: ExploracioYAxis; label: string }[] = [

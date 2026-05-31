@@ -14,6 +14,7 @@ const X_LABELS: Record<ExploracioXAxis, string> = {
   zone: 'Zona',
   food: 'Tipus de menjar',
   ambient: 'Ambient',
+  restaurant: 'Restaurant',
 };
 
 const Y_LABELS: Record<ExploracioYAxis, string> = {
@@ -25,7 +26,8 @@ const Y_LABELS: Record<ExploracioYAxis, string> = {
 function getXValue(r: Restaurant, xAxis: ExploracioXAxis): string {
   if (xAxis === 'zone') return r.zone;
   if (xAxis === 'food') return primaryFood(r);
-  return primaryAmbient(r);
+  if (xAxis === 'ambient') return primaryAmbient(r);
+  return r.name;
 }
 
 function getYValue(r: Restaurant, yAxis: ExploracioYAxis): number {
@@ -57,6 +59,8 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       .attr('transform', `translate(${MARGIN.left},${MARGIN.top})`);
 
     // Aggregate: average + count per category, filtered by minSamples
+    // Per a restaurants, cada entrada és única (n=1), no s'aplica filtre de mostres
+    const isRestaurant = xAxis === 'restaurant';
     const valid = data.filter((r) => getYValue(r, yAxis) > 0 && getXValue(r, xAxis).trim() !== '');
     const grouped = d3.rollup(
       valid,
@@ -66,7 +70,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
 
     const chartData = [...grouped.entries()]
       .map(([key, val]) => ({ key, mean: val.mean, count: val.count }))
-      .filter((d) => d.count >= minSamples)   // ← filtre de mostres mínim
+      .filter((d) => isRestaurant || d.count >= minSamples)
       .sort((a, b) => b.mean - a.mean)
       .slice(0, MAX_BARS);
 
@@ -158,7 +162,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       .attr('width', x.bandwidth())
       .attr('height', (d) => height - (y as (v: number) => number)(d.mean))
       .attr('fill', BAR_COLOR)
-      .attr('opacity', (d) => d.count >= minSamples ? 1 : 0.3)
+      .attr('opacity', (d) => (isRestaurant || d.count >= minSamples) ? 1 : 0.3)
       .attr('rx', 3)
       .on('mouseover', (event, d) => {
         tooltip.transition().duration(100).style('opacity', 1);
@@ -176,7 +180,8 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       })
       .on('mouseout', () => tooltip.transition().duration(200).style('opacity', 0));
 
-    // Etiquetes n= sobre cada barra
+    // Etiquetes n= sobre cada barra (no per a restaurants individuals)
+    if (!isRestaurant) {
     svg.selectAll('text.n-label').data(chartData).join('text')
       .attr('class', 'n-label')
       .attr('x', (d) => x(d.key)! + x.bandwidth() / 2)
@@ -186,6 +191,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       .attr('fill', (d) => d.count >= minSamples ? '#475569' : '#f59e0b')
       .attr('font-weight', (d) => d.count < minSamples ? '700' : '400')
       .text((d) => `n=${d.count}`);
+    }
 
     return () => { tooltip.remove(); };
   }, [data, xAxis, yAxis, minSamples]);

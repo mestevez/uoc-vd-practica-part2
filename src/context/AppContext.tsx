@@ -9,7 +9,7 @@ import {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type ViewId = 'mapa' | 'exploracio' | 'analisi';
-export type ExploracioXAxis = 'zone' | 'food' | 'ambient';
+export type ExploracioXAxis = 'zone' | 'food' | 'ambient' | 'restaurant';
 export type ExploracioYAxis = 'price' | 'score' | 'opinions';
 export type AnalisiAxis = 'price' | 'score' | 'opinions' | 'dist' | 'renda';
 
