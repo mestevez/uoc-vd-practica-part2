@@ -16,6 +16,7 @@ const X_OPTIONS_EXPLORACIO: { value: ExploracioXAxis; label: string }[] = [
 ];
 
 const Y_OPTIONS_EXPLORACIO: { value: ExploracioYAxis; label: string }[] = [
+  { value: 'count', label: 'Nombre de restaurants' },
   { value: 'score', label: 'Puntuació' },
   { value: 'price', label: 'Preu mitjà' },
   { value: 'opinions', label: 'Nombre d\'opinions' },

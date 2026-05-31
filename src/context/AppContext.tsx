@@ -10,7 +10,7 @@ import {
 
 export type ViewId = 'mapa' | 'exploracio' | 'analisi';
 export type ExploracioXAxis = 'zone' | 'food' | 'ambient' | 'restaurant';
-export type ExploracioYAxis = 'price' | 'score' | 'opinions';
+export type ExploracioYAxis = 'price' | 'score' | 'opinions' | 'count';
 export type AnalisiAxis = 'price' | 'score' | 'opinions' | 'dist' | 'renda';
 
 export interface MapaFilters {

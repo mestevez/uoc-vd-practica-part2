@@ -21,6 +21,7 @@ const Y_LABELS: Record<ExploracioYAxis, string> = {
   price: 'Preu mitjà (€)',
   score: 'Puntuació mitjana',
   opinions: 'Opinions (mitjana)',
+  count: 'Nombre de restaurants',
 };
 
 function getXValue(r: Restaurant, xAxis: ExploracioXAxis): string {
@@ -60,17 +61,24 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
 
     // Aggregate: average + count per category, filtered by minSamples
     // Per a restaurants, cada entrada és única (n=1), no s'aplica filtre de mostres
+    // Per a 'count', la mètrica Y és directament el nombre de restaurants del grup
     const isRestaurant = xAxis === 'restaurant';
-    const valid = data.filter((r) => getYValue(r, yAxis) > 0 && getXValue(r, xAxis).trim() !== '');
+    const isCount = yAxis === 'count';
+    const valid = data.filter((r) =>
+      (isCount || getYValue(r, yAxis) > 0) && getXValue(r, xAxis).trim() !== ''
+    );
     const grouped = d3.rollup(
       valid,
-      (v) => ({ mean: d3.mean(v, (r) => getYValue(r, yAxis)) ?? 0, count: v.length }),
+      (v) => ({
+        mean: isCount ? v.length : (d3.mean(v, (r) => getYValue(r, yAxis)) ?? 0),
+        count: v.length,
+      }),
       (r) => getXValue(r, xAxis)
     );
 
     const chartData = [...grouped.entries()]
       .map(([key, val]) => ({ key, mean: val.mean, count: val.count }))
-      .filter((d) => isRestaurant || d.count >= minSamples)
+      .filter((d) => isRestaurant || isCount || d.count >= minSamples)
       .sort((a, b) => b.mean - a.mean)
       .slice(0, MAX_BARS);
 
@@ -87,7 +95,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
     // Escala Y adaptada per variable:
     // - score: domini truncat al rang real per maximitzar la discriminació visual
     // - opinions: logarítmica (abasta ordres de magnitud molt diferents)
-    // - price: lineal des de 0
+    // - price / count: lineal des de 0
     let y: d3.ScaleLinear<number, number> | d3.ScaleLogarithmic<number, number>;
     let yFloor = 0;
 
@@ -98,6 +106,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       yFloor = Math.max(0, minY - (maxY - minY) * 1.5);
       y = d3.scaleLinear().domain([yFloor, maxY]).nice().range([height, 0]);
     } else {
+      // price i count: lineal des de 0
       y = d3.scaleLinear().domain([0, maxY]).nice().range([height, 0]);
     }
 
@@ -162,7 +171,7 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       .attr('width', x.bandwidth())
       .attr('height', (d) => height - (y as (v: number) => number)(d.mean))
       .attr('fill', BAR_COLOR)
-      .attr('opacity', (d) => (isRestaurant || d.count >= minSamples) ? 1 : 0.3)
+      .attr('opacity', (d) => (isRestaurant || isCount || d.count >= minSamples) ? 1 : 0.3)
       .attr('rx', 3)
       .on('mouseover', (event, d) => {
         tooltip.transition().duration(100).style('opacity', 1);
@@ -180,8 +189,8 @@ export default function BarChart({ data, xAxis, yAxis, minSamples }: Props) {
       })
       .on('mouseout', () => tooltip.transition().duration(200).style('opacity', 0));
 
-    // Etiquetes n= sobre cada barra (no per a restaurants individuals)
-    if (!isRestaurant) {
+    // Etiquetes n= sobre cada barra (no per a restaurants individuals ni per a count)
+    if (!isRestaurant && !isCount) {
     svg.selectAll('text.n-label').data(chartData).join('text')
       .attr('class', 'n-label')
       .attr('x', (d) => x(d.key)! + x.bandwidth() / 2)
