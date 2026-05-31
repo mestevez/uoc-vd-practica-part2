@@ -153,13 +153,13 @@ export default function ScatterPlot({ data, xAxis, yAxis }: Props) {
       grad.append('stop').attr('offset', `${t * 100}%`)
         .attr('stop-color', d3.interpolateViridis(t));
     });
-    svg.append('rect').attr('x', legendX).attr('y', -32)
+    svg.append('rect').attr('x', legendX).attr('y', -20)
       .attr('width', legendW).attr('height', legendH)
       .attr('fill', 'url(#scatter-legend-grad)').attr('rx', 2);
     const scoreExtent = d3.extent(valid, (r) => r.score) as [number, number];
-    svg.append('text').attr('x', legendX).attr('y', -36).attr('font-size', '9px').attr('fill', '#555')
+    svg.append('text').attr('x', legendX).attr('y', -26).attr('font-size', '9px').attr('fill', '#555')
       .text(`Puntuació ${scoreExtent[0].toFixed(1)}`);
-    svg.append('text').attr('x', legendX + legendW).attr('y', -36)
+    svg.append('text').attr('x', legendX + legendW).attr('y', -26)
       .attr('text-anchor', 'end').attr('font-size', '9px').attr('fill', '#555')
       .text(scoreExtent[1].toFixed(1));
 

@@ -1,10 +1,11 @@
-import { BarChart2, Map, ScatterChart } from 'lucide-react';
+import { BarChart2, Grid3X3, Map, ScatterChart } from 'lucide-react';
 import { useApp, ViewId } from '../../context/AppContext';
 
 const VIEWS: { id: ViewId; label: string; desc: string; Icon: React.ElementType }[] = [
-  { id: 'mapa',       label: 'Mapa',       desc: 'Distribució geogràfica', Icon: Map         },
-  { id: 'exploracio', label: 'Exploració', desc: 'Gràfic de barres',       Icon: BarChart2   },
-  { id: 'analisi',    label: 'Anàlisi',    desc: 'Correlació de variables', Icon: ScatterChart },
+  { id: 'mapa', label: 'Mapa', desc: 'Distribucio geografica de restaurants', Icon: Map },
+  { id: 'exploracio', label: 'Exploració', desc: 'Compara categories amb metriques', Icon: BarChart2 },
+  { id: 'heatmap', label: 'Afinitat', desc: 'Compara dues dimensions de categories', Icon: Grid3X3 },
+  { id: 'analisi', label: 'Anàlisi', desc: 'Correlacio entre variables numeriques', Icon: ScatterChart },
 ];
 
 export default function Sidebar() {

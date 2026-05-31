@@ -4,11 +4,21 @@ import Sidebar from '../components/layout/Sidebar';
 import FilterPanel from '../components/layout/FilterPanel';
 import MapChart from '../components/charts/MapChart';
 import BarChart from '../components/charts/BarChart';
+import ZoneFoodHeatmap from '../components/charts/ZoneFoodHeatmap';
 import ScatterPlot from '../components/charts/ScatterPlot';
 import { UtensilsCrossed } from 'lucide-react';
 
 export default function Home() {
-  const { filteredData, allData, loading, error, activeView, exploracioConfig, analisiConfig } = useApp();
+  const {
+    filteredData,
+    allData,
+    loading,
+    error,
+    activeView,
+    exploracioConfig,
+    analisiConfig,
+    heatmapConfig,
+  } = useApp();
 
   return (
     <div className="app-shell">
@@ -34,13 +44,18 @@ export default function Home() {
           {loading && (
             <div className="centered">
               <div className="spinner" />
-              <p>Carregant dades…</p>
+              <p>Carregant dades...</p>
             </div>
           )}
-          {error && <div className="error-box"><p>Error: {error}</p></div>}
+          {error && (
+            <div className="error-box">
+              <p>Error: {error}</p>
+            </div>
+          )}
           {!loading && !error && (
             <div className="chart-area">
               {activeView === 'mapa' && <MapChart data={filteredData} />}
+
               {activeView === 'exploracio' && (
                 <BarChart
                   data={filteredData}
@@ -49,6 +64,19 @@ export default function Home() {
                   minSamples={exploracioConfig.minSamples}
                 />
               )}
+
+              {activeView === 'heatmap' && (
+                <ZoneFoodHeatmap
+                  data={allData}
+                  metric={heatmapConfig.metric}
+                  xAxis={heatmapConfig.xAxis}
+                  yAxis={heatmapConfig.yAxis}
+                  maxZones={heatmapConfig.maxZones}
+                  maxFoods={heatmapConfig.maxFoods}
+                  minSamples={heatmapConfig.minSamples}
+                />
+              )}
+
               {activeView === 'analisi' && (
                 <ScatterPlot
                   data={filteredData}
