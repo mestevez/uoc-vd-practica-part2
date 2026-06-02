@@ -126,7 +126,7 @@ export default function ScatterPlot({ data, xAxis, yAxis }: Props) {
       .attr('cx', (r) => x(getValue(r, xAxis)))
       .attr('cy', (r) => y(getValue(r, yAxis)))
       .attr('r', 4)
-      .attr('fill', (r) => color(r.score))
+      .attr('fill', 'rgb(59, 130, 246)')
       .attr('stroke', 'rgba(255,255,255,0.5)').attr('stroke-width', 0.5)
       .attr('opacity', 0.7)
       .on('mouseover', (event, r) => {
@@ -143,25 +143,6 @@ export default function ScatterPlot({ data, xAxis, yAxis }: Props) {
           .style('top', `${(event as MouseEvent).pageY - 28}px`);
       })
       .on('mouseout', () => tooltip.transition().duration(200).style('opacity', 0));
-
-    // Color legend (score)
-    const legendW = 120, legendH = 10;
-    const legendX = width - legendW;
-    const defs = svg.append('defs');
-    const grad = defs.append('linearGradient').attr('id', 'scatter-legend-grad');
-    [0, 0.25, 0.5, 0.75, 1].forEach((t) => {
-      grad.append('stop').attr('offset', `${t * 100}%`)
-        .attr('stop-color', d3.interpolateViridis(t));
-    });
-    svg.append('rect').attr('x', legendX).attr('y', -20)
-      .attr('width', legendW).attr('height', legendH)
-      .attr('fill', 'url(#scatter-legend-grad)').attr('rx', 2);
-    const scoreExtent = d3.extent(valid, (r) => r.score) as [number, number];
-    svg.append('text').attr('x', legendX).attr('y', -26).attr('font-size', '9px').attr('fill', '#555')
-      .text(`Puntuació ${scoreExtent[0].toFixed(1)}`);
-    svg.append('text').attr('x', legendX + legendW).attr('y', -26)
-      .attr('text-anchor', 'end').attr('font-size', '9px').attr('fill', '#555')
-      .text(scoreExtent[1].toFixed(1));
 
     return () => { tooltip.remove(); };
   }, [data, xAxis, yAxis]);
